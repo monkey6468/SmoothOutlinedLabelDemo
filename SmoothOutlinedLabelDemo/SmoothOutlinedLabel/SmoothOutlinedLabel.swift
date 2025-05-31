@@ -10,6 +10,16 @@ import UIKit
 @IBDesignable
 class SmoothOutlinedLabel: UIView {
     
+    // MARK: - Enums
+
+    enum HorizontalAlignment: Int {
+        case left = 0, center = 1, right = 2
+    }
+
+    enum VerticalAlignment: Int {
+        case top = 0, middle = 1, bottom = 2
+    }
+
     // MARK: - Inspectables
 
     @IBInspectable var text: String = "" {
@@ -44,7 +54,7 @@ class SmoothOutlinedLabel: UIView {
         didSet { setNeedsDisplay() }
     }
     
-    @IBInspectable var lineSpacing: CGFloat = 2 {
+    @IBInspectable var lineSpacing: CGFloat = 0 {
         didSet { setNeedsDisplay() }
     }
 
@@ -52,20 +62,27 @@ class SmoothOutlinedLabel: UIView {
         didSet { setNeedsDisplay() }
     }
 
-    @IBInspectable var lineLimit: Int = 0 { // 0 表示不限制
+    @IBInspectable var lineLimit: Int = 1 {
         didSet { setNeedsDisplay() }
     }
 
-    @IBInspectable var paddingTop: CGFloat = 5 { didSet { setNeedsDisplay() } }
-    @IBInspectable var paddingLeft: CGFloat = 5 { didSet { setNeedsDisplay() } }
-    @IBInspectable var paddingBottom: CGFloat = 5 { didSet { setNeedsDisplay() } }
-    @IBInspectable var paddingRight: CGFloat = 5 { didSet { setNeedsDisplay() } }
-
-    private var textInsets: UIEdgeInsets {
-        return UIEdgeInsets(top: paddingTop, left: paddingLeft, bottom: paddingBottom, right: paddingRight)
+    @IBInspectable var horizontalAlignmentRaw: Int = 0 {
+        didSet { setNeedsDisplay() }
     }
-    
-    // MARK: - Private Properties
+
+    @IBInspectable var verticalAlignmentRaw: Int = 0 {
+        didSet { setNeedsDisplay() }
+    }
+
+    var horizontalAlignment: HorizontalAlignment {
+        HorizontalAlignment(rawValue: horizontalAlignmentRaw) ?? .left
+    }
+
+    var verticalAlignment: VerticalAlignment {
+        VerticalAlignment(rawValue: verticalAlignmentRaw) ?? .middle
+    }
+
+    // MARK: - Private
 
     private var glyphPaths: [CGPath] = []
 
@@ -86,11 +103,9 @@ class SmoothOutlinedLabel: UIView {
         backgroundColor = .clear
     }
 
-    // MARK: - Glyph Path
+    // MARK: - Glyph Paths
 
     private func createGlyphPaths(for line: CTLine, at origin: CGPoint) {
-        glyphPaths.removeAll()
-
         let runs = CTLineGetGlyphRuns(line) as NSArray
         for runIndex in 0..<runs.count {
             let run = runs[runIndex] as! CTRun
@@ -116,7 +131,6 @@ class SmoothOutlinedLabel: UIView {
     private func drawGlyphPaths(in context: CGContext) {
         context.saveGState()
 
-        // 阴影配置
         if shadowColor != .clear {
             context.setShadow(offset: shadowOffset, blur: shadowBlur, color: shadowColor.cgColor)
         }
@@ -135,13 +149,11 @@ class SmoothOutlinedLabel: UIView {
         context.restoreGState()
     }
 
-    // MARK: - Draw
+    // MARK: - Drawing
 
     override func draw(_ rect: CGRect) {
         guard let ctx = UIGraphicsGetCurrentContext(), !text.isEmpty else { return }
         ctx.clear(rect)
-
-        let drawRect = rect.inset(by: textInsets)
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
@@ -152,28 +164,59 @@ class SmoothOutlinedLabel: UIView {
             .kern: letterSpacing,
             .paragraphStyle: paragraphStyle
         ]
-        let attrString = NSAttributedString(string: text, attributes: attributes)
 
+        let attrString = NSAttributedString(string: text, attributes: attributes)
         let framesetter = CTFramesetterCreateWithAttributedString(attrString)
-        let path = CGPath(rect: drawRect, transform: nil)
+        let path = CGPath(rect: rect, transform: nil)
         let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, nil)
 
         ctx.saveGState()
         ctx.translateBy(x: 0, y: bounds.height)
         ctx.scaleBy(x: 1, y: -1)
 
-        let lines = CTFrameGetLines(frame)
-        let count = CFArrayGetCount(lines)
-        let drawCount = (lineLimit > 0) ? min(lineLimit, count) : count
+        let lines = CTFrameGetLines(frame) as! [CTLine]
+        let count = min(lineLimit > 0 ? lineLimit : lines.count, lines.count)
 
-        var origins = Array(repeating: CGPoint.zero, count: drawCount)
-        CTFrameGetLineOrigins(frame, CFRangeMake(0, drawCount), &origins)
+        var origins = Array(repeating: CGPoint.zero, count: count)
+        CTFrameGetLineOrigins(frame, CFRangeMake(0, count), &origins)
 
-        for i in 0..<drawCount {
-            let line = unsafeBitCast(CFArrayGetValueAtIndex(lines, i), to: CTLine.self)
+        // 垂直对齐：计算整体文本高度
+        var ascent: CGFloat = 0
+        var descent: CGFloat = 0
+        var leading: CGFloat = 0
+        var totalHeight: CGFloat = 0
+        for line in lines.prefix(count) {
+            CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
+            totalHeight += ascent + descent + lineSpacing
+        }
+        totalHeight -= lineSpacing
+
+        let yOffset: CGFloat = {
+            switch verticalAlignment {
+            case .top: return 0
+            case .middle: return (bounds.height - totalHeight) / 2
+            case .bottom: return bounds.height - totalHeight
+            }
+        }()
+
+        glyphPaths.removeAll()
+
+        for i in 0..<count {
+            let line = lines[i]
             var origin = origins[i]
-            origin.x += textInsets.left
-            origin.y -= textInsets.bottom
+
+            // 水平对齐
+            let flush: CGFloat = {
+                switch horizontalAlignment {
+                case .left: return 0.0
+                case .center: return 0.5
+                case .right: return 1.0
+                }
+            }()
+            let penOffset = CTLineGetPenOffsetForFlush(line, flush, Double(bounds.width))
+            origin.x = CGFloat(penOffset)
+            origin.y -= yOffset
+
             createGlyphPaths(for: line, at: origin)
             drawGlyphPaths(in: ctx)
         }
