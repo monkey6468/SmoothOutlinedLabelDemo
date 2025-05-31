@@ -2,7 +2,7 @@
 自定义 发光字体,是一个支持多行文本、描边（描边宽度与颜色）、文字阴影、自动换行、文字间距、最大行数以及省略号等功能的 自定义 UILabel 替代控件。适用于需要精细文字绘制与高自定义展示效果的 iOS 项目。
 
 ## 一、效果图
-![](screenshots/Simulator Screenshot - iPhone 13 - 2025-05-31 at 20.49.35.png)
+![](screenshots/SimulatorScreenshot-iPhone13-2025-05-31at20.49.35.png)
 
 ## 二、用法
 
