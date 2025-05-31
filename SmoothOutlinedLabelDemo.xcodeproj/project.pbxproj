@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		566654732DEB19BE008A54D1 /* SmoothOutlinedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 566654722DEB19BE008A54D1 /* SmoothOutlinedLabel.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		5666541E2DEB165A008A54D1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -31,7 +27,6 @@
 		566654072DEB1657008A54D1 /* SmoothOutlinedLabelDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmoothOutlinedLabelDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5666541D2DEB165A008A54D1 /* SmoothOutlinedLabelDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmoothOutlinedLabelDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		566654272DEB165A008A54D1 /* SmoothOutlinedLabelDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmoothOutlinedLabelDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		566654722DEB19BE008A54D1 /* SmoothOutlinedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothOutlinedLabel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -93,7 +88,6 @@
 		566653FE2DEB1657008A54D1 = {
 			isa = PBXGroup;
 			children = (
-				5666546D2DEB1904008A54D1 /* SmoothOutlinedLabel */,
 				566654092DEB1657008A54D1 /* SmoothOutlinedLabelDemo */,
 				566654202DEB165A008A54D1 /* SmoothOutlinedLabelDemoTests */,
 				5666542A2DEB165A008A54D1 /* SmoothOutlinedLabelDemoUITests */,
@@ -109,14 +103,6 @@
 				566654272DEB165A008A54D1 /* SmoothOutlinedLabelDemoUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		5666546D2DEB1904008A54D1 /* SmoothOutlinedLabel */ = {
-			isa = PBXGroup;
-			children = (
-				566654722DEB19BE008A54D1 /* SmoothOutlinedLabel.swift */,
-			);
-			path = SmoothOutlinedLabel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -222,6 +208,8 @@
 			);
 			mainGroup = 566653FE2DEB1657008A54D1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 566654082DEB1657008A54D1 /* Products */;
 			projectDirPath = "";
@@ -263,7 +251,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				566654732DEB19BE008A54D1 /* SmoothOutlinedLabel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
